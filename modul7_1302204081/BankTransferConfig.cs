@@ -8,6 +8,8 @@ using System.IO;
 using System.Net.Http.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
+using Newtonsoft.Json.Converters;
 
 namespace modul7_1302204081
 {
@@ -41,6 +43,7 @@ namespace modul7_1302204081
 		private const string CONFIG6 = "YES";
 		private const string CONFIG7 = "ya";
 		public static int uang;
+		public static string input;
 		public static bool en;
 
 		public void config(){
@@ -56,10 +59,19 @@ namespace modul7_1302204081
 			confirmation.id = CONFIG7;
 			//setting config default
 			config.lang = CONFIG1;
+			config.transfer = transfer;
 			config.methods = CONFIG5;
 			config.confirmation = confirmation;
+			JsonSerializer serializer = new JsonSerializer();
+			serializer.Converters.Add(new JavaScriptDateTimeConverter());
+			serializer.NullValueHandling = NullValueHandling.Ignore;
 
-
+			using (StreamWriter sw = new StreamWriter(@"c:\College\Programming\Konstruksi Perangkat Lunak\Praktikum\Jurnal 7\modul7_1302204081\modul7_1302204081\bank_transfer_config.json"))
+			using (JsonWriter writer = new JsonTextWriter(sw))
+			{
+				serializer.Serialize(writer, config);
+				
+			}
 			try
 			{
 				StreamReader reader = new StreamReader("bank_transfer_config.json");
@@ -76,7 +88,7 @@ namespace modul7_1302204081
 						uang = Convert.ToInt32(Console.ReadLine());
 						en = true;
 						
-					}else if(config.lang == "id")
+					}else
 					{
 						Console.WriteLine("Masukan jumlah uang yang akan di transfer :");
 						en = false;
@@ -98,10 +110,42 @@ namespace modul7_1302204081
 					if (en == true)
 					{
 						Console.WriteLine("Transfer fee : "+uang);
+						Console.WriteLine("Select Transfer Method : ");
 					}
 					else
 					{
 						Console.WriteLine("Biaya Transfer : "+uang);
+						Console.WriteLine("Pilih Metode Transfer : ");
+					}
+					foreach(string item in CONFIG5)
+					{
+						Console.WriteLine(item);
+					}
+					input = Console.ReadLine();
+					if(en == true)
+					{
+						Console.WriteLine("Please Type "+CONFIG6 +" to confirm the transaction");
+						input = Console.ReadLine();
+						if (input != CONFIG6)
+						{
+							Console.WriteLine("Transfer Is Canceled");
+						}
+						else
+						{
+							Console.WriteLine("The Transfer Is Completed");
+						}
+					}
+					else
+					{
+						Console.WriteLine("Ketik "+CONFIG7+" untuk mengkonfirmasi Transaksi");
+						input = Console.ReadLine();
+						if (input!= CONFIG7){
+							Console.WriteLine("Transfer Dibatalkan");
+						}
+						else
+						{
+							Console.WriteLine("Proses Transfer Berhasil");
+						}
 					}
 				}
 				
@@ -114,22 +158,5 @@ namespace modul7_1302204081
 			
 		}
 
-
-
-		//Atribute untuk diserialisasi
-		//public string lang { get; set; }
-		//public string transfer { get; set; }
-		//public string methods { get; set; }
-		//public string confirmation { get; set; }
-
-		//public BankTransferConfig() { }
-
-		//public BankTransferConfig(string lang, string transfer, string methods,string confirmation)
-		//{
-		//	this.lang = lang;
-		//	this.transfer = transfer;
-		//	this.methods = methods;
-		//	this.confirmation = confirmation;
-		//}
 	}
 }
